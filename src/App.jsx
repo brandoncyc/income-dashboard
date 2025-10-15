@@ -100,7 +100,7 @@ const IncomeDistributionChart = ({ data }) => {
             .append("g")
             .attr("transform", `translate(${width / 2}, ${height / 2})`);
 
-        const color = d3.scaleOrdinal().domain(incomeData.map(d => d.key)).range(["#60a5fa", "#f472b6"]);
+        const color = d3.scaleOrdinal().domain(incomeData.map(d => d.key)).range(["#60a5fa", "#fb923c"]);
         const pie = d3.pie().value(d => d.value);
         const data_ready = pie(incomeData);
         const arc = d3.arc().innerRadius(0).outerRadius(radius);
