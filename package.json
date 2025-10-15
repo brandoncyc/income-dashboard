@@ -2,7 +2,7 @@
     "name": "income-dashboard",
     "version": "0.1.0",
     "private": true,
-    "homepage": "https://<Your-GitHub-Username>.github.io/income-dashboard",
+    "homepage": "https://brandoncyc.github.io/income-dashboard",
     "dependencies": {
       "react": "^18.2.0",
       "react-dom": "^18.2.0",
