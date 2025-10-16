@@ -29,7 +29,7 @@ const App = () => {
     }, []);
 
     return (
-        <div style={{ fontFamily: "'Inter', sans-serif" }} className="bg-gray-100 p-4 md:p-8">
+        <div style={{ fontFamily: "'Inter', sans-serif" }} className="bg-gray-100 p-4 md:p-8 min-h-screen">
             <div className="max-w-7xl mx-auto">
                 <header className="mb-8">
                     <h1 className="text-3xl font-bold text-gray-800">Income Analysis Dashboard</h1>
@@ -60,9 +60,124 @@ const App = () => {
                 )}
             </div>
             <Tooltip />
+            <Chatbot />
         </div>
     );
 };
+
+// --- CHATBOT COMPONENT ---
+const Chatbot = () => {
+    const [isOpen, setIsOpen] = useState(false);
+    const [messages, setMessages] = useState([
+        { sender: 'bot', text: "Hello! I'm your data guide. Ask me about the charts or for a key insight. Type 'help' to see what I can answer." }
+    ]);
+    const [inputValue, setInputValue] = useState('');
+    const chatBodyRef = useRef(null);
+
+    // Scroll to bottom of chat on new message
+    useEffect(() => {
+        if (chatBodyRef.current) {
+            chatBodyRef.current.scrollTop = chatBodyRef.current.scrollHeight;
+        }
+    }, [messages]);
+    
+    // --- BOT'S KNOWLEDGE BASE ---
+    // This is where you can add more questions and answers.
+    const getBotResponse = (userInput) => {
+        const lowerInput = userInput.toLowerCase().trim();
+
+        if (lowerInput.includes('hello') || lowerInput.includes('hi')) {
+            return "Hi there! How can I help you understand this data?";
+        }
+        if (lowerInput.includes('help')) {
+            return "You can ask me things like: 'Explain the age chart', 'What does the education chart show?', 'Tell me about the occupation data', or 'Give me a key takeaway'.";
+        }
+        if (lowerInput.includes('age')) {
+            return "The 'Income Distribution by Age' chart is a box plot. It shows that the median age for individuals earning >$50K is higher than for those earning <=$50K. The box represents the middle 50% of people in each group.";
+        }
+        if (lowerInput.includes('education')) {
+            return "The 'High Income Rate by Education Level' bar chart shows the percentage of people at each education level who earn >$50K. There is a strong trend: more education is highly correlated with a higher income rate.";
+        }
+        if (lowerInput.includes('hours')) {
+            return "The 'Income Distribution by Hours Per Week' chart shows that while both groups have a median of 40 hours/week, the range for high-income earners is wider, suggesting many work more than 40 hours.";
+        }
+        if (lowerInput.includes('occupation')) {
+            return "The 'High Income Rate by Occupation' chart ranks jobs by the percentage of workers earning >$50K. 'Exec-managerial' and 'Prof-specialty' roles have the highest rates of high-income earners.";
+        }
+        if (lowerInput.includes('takeaway') || lowerInput.includes('insight') || lowerInput.includes('summary')) {
+            return "A key insight is that factors like higher education (Bachelors, Masters, Doctorate) and occupation type (managerial or professional specialty) are much stronger predictors of earning over $50K than age or hours worked alone.";
+        }
+
+        return "I'm sorry, I'm not sure how to answer that. You can ask me to explain a specific chart or give you a key insight. Type 'help' for examples.";
+    };
+    
+    const handleSendMessage = (e) => {
+        e.preventDefault();
+        if (!inputValue.trim()) return;
+
+        const userMessage = { sender: 'user', text: inputValue };
+        setMessages(prev => [...prev, userMessage]);
+        
+        const botResponseText = getBotResponse(inputValue);
+        const botMessage = { sender: 'bot', text: botResponseText };
+
+        setTimeout(() => {
+            setMessages(prev => [...prev, botMessage]);
+        }, 500); // Simulate bot thinking
+
+        setInputValue('');
+    };
+
+    return (
+        <>
+            {/* Chat bubble button */}
+            {!isOpen && (
+                <button onClick={() => setIsOpen(true)} className="fixed bottom-5 right-5 bg-blue-500 text-white p-4 rounded-full shadow-lg hover:bg-blue-600 transition-transform transform hover:scale-110 z-50">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" /></svg>
+                </button>
+            )}
+
+            {/* Chat Window */}
+            {isOpen && (
+                <div className="fixed bottom-5 right-5 w-80 h-96 bg-white rounded-lg shadow-2xl flex flex-col transition-all z-50">
+                    {/* Header */}
+                    <div className="flex justify-between items-center p-3 bg-blue-500 text-white rounded-t-lg">
+                        <h3 className="font-semibold">Data Guide</h3>
+                        <button onClick={() => setIsOpen(false)} className="hover:text-gray-200">
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+                        </button>
+                    </div>
+
+                    {/* Messages */}
+                    <div ref={chatBodyRef} className="flex-1 p-4 overflow-y-auto bg-gray-50">
+                        {messages.map((msg, index) => (
+                            <div key={index} className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'} mb-3`}>
+                                <div className={`py-2 px-3 rounded-lg max-w-xs ${msg.sender === 'user' ? 'bg-blue-200 text-gray-800' : 'bg-gray-200 text-gray-800'}`}>
+                                    {msg.text}
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+
+                    {/* Input */}
+                    <form onSubmit={handleSendMessage} className="p-3 border-t bg-white rounded-b-lg">
+                        <div className="flex">
+                            <input 
+                                type="text"
+                                placeholder="Ask a question..."
+                                value={inputValue}
+                                onChange={(e) => setInputValue(e.target.value)}
+                                className="flex-1 p-2 border rounded-l-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+                            />
+                            <button type="submit" className="bg-blue-500 text-white px-4 rounded-r-md hover:bg-blue-600">Send</button>
+                        </div>
+                    </form>
+                </div>
+            )}
+        </>
+    );
+};
+
 
 // Generic Chart Container
 const ChartContainer = ({ title, children, fullWidth = false }) => (
@@ -74,7 +189,7 @@ const ChartContainer = ({ title, children, fullWidth = false }) => (
 
 // Tooltip Component
 const Tooltip = () => (
-    <div id="tooltip" className="absolute text-center p-2 text-sm bg-gray-800 text-white rounded-md pointer-events-none opacity-0 transition-opacity duration-200"></div>
+    <div id="tooltip" className="absolute text-center p-2 text-sm bg-gray-800 text-white rounded-md pointer-events-none opacity-0 transition-opacity duration-200 z-10"></div>
 );
 
 // --- D3 Chart Components ---
@@ -100,7 +215,7 @@ const IncomeDistributionChart = ({ data }) => {
             .append("g")
             .attr("transform", `translate(${width / 2}, ${height / 2})`);
 
-        const color = d3.scaleOrdinal().domain(incomeData.map(d => d.key)).range(["#60a5fa", "#fb923c"]);
+        const color = d3.scaleOrdinal().domain(incomeData.map(d => d.key)).range(["#60a5fa", "#f472b6"]); // Changed orange to pink
         const pie = d3.pie().value(d => d.value);
         const data_ready = pie(incomeData);
         const arc = d3.arc().innerRadius(0).outerRadius(radius);
@@ -288,7 +403,7 @@ const HoursChart = ({ data }) => {
         svg.selectAll("boxes").data(sumstatArray).enter().append("rect")
             .attr("y", d => y(d.key)).attr("x", d => x(d.value.q1))
             .attr("width", d => (x(d.value.q3) - x(d.value.q1)))
-            .attr("height", y.bandwidth()).attr("stroke", "black").style("fill", "#fb923c");
+            .attr("height", y.bandwidth()).attr("stroke", "black").style("fill", "#f472b6"); // Changed orange to pink
         
         svg.selectAll("medianLines").data(sumstatArray).enter().append("line")
             .attr("y1", d => y(d.key)).attr("y2", d => y(d.key) + y.bandwidth())
@@ -353,3 +468,4 @@ const OccupationChart = ({ data }) => {
 };
 
 export default App;
+
