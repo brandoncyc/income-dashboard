@@ -1,10 +1,10 @@
 {
   "files": {
-    "main.js": "/income-dashboard/static/js/main.0d2a22fc.js",
+    "main.js": "/income-dashboard/static/js/main.f9e1dde6.js",
     "index.html": "/income-dashboard/index.html",
-    "main.0d2a22fc.js.map": "/income-dashboard/static/js/main.0d2a22fc.js.map"
+    "main.f9e1dde6.js.map": "/income-dashboard/static/js/main.f9e1dde6.js.map"
   },
   "entrypoints": [
-    "static/js/main.0d2a22fc.js"
+    "static/js/main.f9e1dde6.js"
   ]
 }
